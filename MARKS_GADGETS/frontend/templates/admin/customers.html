@@ -1,0 +1,10 @@
+{% extends 'admin/base.html' %}
+{% block title %}Customers | MARKS GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading"><div><span class="eyebrow">CUSTOMER ACCOUNTS</span><h1>Customers</h1><p class="admin-subtitle">Registered customer accounts and order history.</p></div><span class="muted-copy">{{ pagination.total }} registered</span></div>
+<form class="admin-panel admin-search-form" method="get" role="search"><label class="visually-hidden" for="customer-search">Search customers</label><div class="search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="customer-search" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Search name, email, or phone..."></div><button class="button button-primary" type="submit">Search</button>{% if search %}<a class="button button-outline" href="{{ url_for('admin.customers') }}">Clear</a>{% endif %}<span class="search-count">{{ pagination.total }} customers</span></form>
+<div class="admin-panel admin-table-panel"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Orders</th></tr></thead><tbody>
+{% for customer in pagination.items %}<tr><td><strong>{{ customer.name }}</strong></td><td>{{ customer.email }}</td><td>{{ customer.phone }}</td><td>{{ customer.created_at.strftime('%b %d, %Y') }}</td><td>{{ customer.orders|length }}</td></tr>{% else %}<tr><td colspan="5">No customers match your search.</td></tr>{% endfor %}
+</tbody></table>
+{% if pagination.pages > 1 %}<div class="pagination-nav">{% if pagination.has_prev %}<a href="{{ url_for('admin.customers', q=search, page=pagination.prev_num) }}">← Previous</a>{% endif %}<span>Page {{ pagination.page }} of {{ pagination.pages }}</span>{% if pagination.has_next %}<a href="{{ url_for('admin.customers', q=search, page=pagination.next_num) }}">Next →</a>{% endif %}</div>{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="MARKS GADGETS logo">
+  <rect x="4" y="4" width="120" height="120" rx="25" fill="#1762b7"/>
+  <path d="M26 92V36h14l24 31 24-31h14v56H84V61L64 86 44 61v31z" fill="#fff"/>
+  <path d="M103 20v17H86V20z" fill="#9ee1c6"/>
+</svg>

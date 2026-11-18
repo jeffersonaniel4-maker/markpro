@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Page Not Found | MARKS GADGETS{% endblock %}
+{% block content %}<section class="error-page container-xl"><span class="error-code">404</span><h1>We can’t find that page.</h1><p>It may have moved, or the link may be out of date.</p><a class="button button-primary" href="{{ url_for('main.index') }}">Back to home</a></section>{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+{% block title %}Inventory Management | MARK'S GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading">
+    <div><span class="eyebrow">PRODUCT MANAGEMENT</span><h1>Inventory management</h1><p class="admin-subtitle">Monitor current product stock and update quantities.</p></div>
+    <a class="button button-outline" href="{{ url_for('admin.data_table', dataset='inventory_logs') }}"><i class="bi bi-journal-text" aria-hidden="true"></i> Inventory logs</a>
+</div>
+<form class="admin-panel admin-search-form" method="get" role="search">
+    <label class="visually-hidden" for="inventory-search">Search inventory</label>
+    <div class="search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="inventory-search" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Search products..."></div>
+    <label class="visually-hidden" for="inventory-stock">Filter stock</label>
+    <select id="inventory-stock" name="stock"><option value="">All stock levels</option><option value="low" {% if stock_filter == 'low' %}selected{% endif %}>Low stock</option><option value="out" {% if stock_filter == 'out' %}selected{% endif %}>Out of stock</option></select>
+    <button class="button button-primary" type="submit">Apply</button>
+    {% if search or stock_filter %}<a class="button button-outline" href="{{ url_for('admin.inventory') }}">Clear</a>{% endif %}
+    <span class="search-count">{{ pagination.total }} products</span>
+</form>
+<div class="admin-panel admin-table-panel">
+    <table class="data-table"><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Availability</th><th>Action</th></tr></thead><tbody>
+    {% for product in pagination.items %}
+    <tr>
+        <td><div class="admin-product"><img src="{{ url_for('static', filename='images/' ~ product.image_path) }}" alt=""><strong>{{ product.name }}</strong></div></td>
+        <td>{{ product.category.name }}</td>
+        <td class="{% if product.stock <= 5 %}stock-warning{% endif %}">{{ product.stock }} units</td>
+        <td><span class="status-pill {% if product.stock == 0 %}status-cancelled{% elif product.stock <= 5 %}status-pending{% else %}status-delivered{% endif %}">{% if product.stock == 0 %}Out of stock{% elif product.stock <= 5 %}Low stock{% else %}In stock{% endif %}</span></td>
+        <td class="table-actions"><a href="{{ url_for('admin.product_edit', product_id=product.id) }}">Update stock</a></td>
+    </tr>
+    {% else %}<tr><td colspan="5">No inventory records match this filter.</td></tr>{% endfor %}
+    </tbody></table>
+    {% if pagination.pages > 1 %}<div class="pagination-nav">{% if pagination.has_prev %}<a href="{{ url_for('admin.inventory', q=search, stock=stock_filter, page=pagination.prev_num) }}">← Previous</a>{% endif %}<span>Page {{ pagination.page }} of {{ pagination.pages }}</span>{% if pagination.has_next %}<a href="{{ url_for('admin.inventory', q=search, stock=stock_filter, page=pagination.next_num) }}">Next →</a>{% endif %}</div>{% endif %}
+</div>
+{% endblock %}

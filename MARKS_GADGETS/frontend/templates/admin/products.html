@@ -1,0 +1,22 @@
+{% extends 'admin/base.html' %}
+{% block title %}Manage Products | MARKS GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading"><div><span class="eyebrow">CATALOG</span><h1>Products</h1><p class="admin-subtitle">Search, filter, and manage your product catalog.</p></div><a class="button button-primary" href="{{ url_for('admin.product_new') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add product</a></div>
+<form class="admin-panel admin-search-form" method="get" role="search">
+    <label class="visually-hidden" for="product-search">Search products</label>
+    <div class="search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="product-search" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Search products..."></div>
+    <label class="visually-hidden" for="product-category">Filter by category</label>
+    <select id="product-category" name="category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>{{ category.name }}</option>{% endfor %}</select>
+    <label class="visually-hidden" for="product-visibility">Filter by visibility</label>
+    <select id="product-visibility" name="visibility"><option value="">All products</option><option value="active" {% if visibility == 'active' %}selected{% endif %}>Active</option><option value="archived" {% if visibility == 'archived' %}selected{% endif %}>Archived</option></select>
+    <button class="button button-primary" type="submit">Apply</button>
+    {% if search or selected_category or visibility %}<a class="button button-outline" href="{{ url_for('admin.products') }}">Clear</a>{% endif %}
+    <span class="search-count">{{ pagination.total }} products</span>
+</form>
+<div class="admin-panel admin-table-panel"><table class="data-table"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Visibility</th><th>Actions</th></tr></thead><tbody>
+{% for product in pagination.items %}
+<tr><td><div class="admin-product"><img src="{{ url_for('static', filename='images/' ~ product.image_path) }}" alt=""><strong>{{ product.name }}</strong></div></td><td>{{ product.category.name }}</td><td>{{ product.price|peso }}</td><td class="{% if product.stock <= 5 %}stock-warning{% endif %}">{{ product.stock }}</td><td>{{ 'Active' if product.active else 'Archived' }}</td><td class="table-actions"><a href="{{ url_for('admin.product_edit', product_id=product.id) }}">Edit</a><form method="post" action="{{ url_for('admin.product_delete', product_id=product.id) }}" data-confirm="Delete or archive this product?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Delete</button></form></td></tr>
+{% else %}<tr><td colspan="6">No products match this filter.</td></tr>{% endfor %}
+</tbody></table>
+{% if pagination.pages > 1 %}<div class="pagination-nav">{% if pagination.has_prev %}<a href="{{ url_for('admin.products', q=search, category=selected_category, visibility=visibility, page=pagination.prev_num) }}">← Previous</a>{% endif %}<span>Page {{ pagination.page }} of {{ pagination.pages }}</span>{% if pagination.has_next %}<a href="{{ url_for('admin.products', q=search, category=selected_category, visibility=visibility, page=pagination.next_num) }}">Next →</a>{% endif %}</div>{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'admin/base.html' %}
+{% block title %}{{ title }} | MARK'S GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading">
+    <div><span class="eyebrow">DATABASE RECORDS{% if table_name %} · {{ table_name }}{% endif %}</span><h1>{{ title }}</h1><p class="admin-subtitle">{{ description }}</p></div>
+</div>
+{% if not table_name %}
+<div class="admin-panel table-not-available" role="status">
+    <span class="table-notice-icon"><i class="bi bi-database-exclamation" aria-hidden="true"></i></span>
+    <div><h2>Table not available</h2><p>The configured database does not contain this table. It has not been created or modified. Configure the existing database connection to view its records.</p></div>
+</div>
+{% else %}
+<form class="admin-panel admin-search-form" method="get" role="search">
+    <label class="visually-hidden" for="record-search">Search {{ title|lower }}</label>
+    <div class="search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="record-search" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Search {{ title|lower }}..."></div>
+    <button class="button button-primary" type="submit">Search</button>
+    {% if search %}<a class="button button-outline" href="{{ request.path }}">Clear</a>{% endif %}
+    <span class="search-count">{{ pagination.total }} records</span>
+</form>
+<div class="admin-panel admin-table-panel">
+    {% if columns %}
+    <table class="data-table"><thead><tr>{% for column in columns %}<th>{{ column.name|replace('_', ' ')|title }}</th>{% endfor %}</tr></thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>{% for column in columns %}<td>{{ row[column.name]|string|truncate(100, True) if row[column.name] is not none else '—' }}</td>{% endfor %}</tr>
+        {% else %}
+            <tr><td colspan="{{ columns|length }}">No records{% if search %} match your search{% endif %}.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted-copy data-table-empty">No displayable fields are available for this table.</p>
+    {% endif %}
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination-nav">
+        {% if pagination.has_prev %}<a href="{{ url_for('admin.data_table', dataset=request.view_args.dataset, q=search, page=pagination.prev_num) }}">← Previous</a>{% endif %}
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}<a href="{{ url_for('admin.data_table', dataset=request.view_args.dataset, q=search, page=pagination.next_num) }}">Next →</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

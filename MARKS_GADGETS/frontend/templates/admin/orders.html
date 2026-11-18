@@ -1,0 +1,20 @@
+{% extends 'admin/base.html' %}
+{% block title %}Manage Orders | MARKS GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading"><div><span class="eyebrow">FULFILLMENT</span><h1>Sales transactions</h1><p class="admin-subtitle">Review orders, payment collection, and fulfillment status.</p></div></div>
+<form class="admin-panel admin-search-form" method="get" role="search">
+    <label class="visually-hidden" for="order-search">Search sales transactions</label>
+    <div class="search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="order-search" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Search reference, customer, or phone..."></div>
+    <label class="visually-hidden" for="status-filter">Filter by status</label>
+    <select id="status-filter" name="status"><option value="">All statuses</option>{% for status in statuses %}<option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status|title }}</option>{% endfor %}</select>
+    <button class="button button-primary" type="submit">Apply</button>
+    {% if search or selected_status %}<a class="button button-outline" href="{{ url_for('admin.orders') }}">Clear</a>{% endif %}
+    <span class="search-count">{{ pagination.total }} transactions</span>
+</form>
+<div class="admin-panel admin-table-panel"><table class="data-table"><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead><tbody>
+{% for order in pagination.items %}
+<tr><td><strong>{{ order.reference }}</strong><small class="table-subline">{{ order.items|length }} items</small></td><td>{{ order.customer_name }}<small class="table-subline">{{ order.phone }}</small></td><td>{{ order.created_at.strftime('%b %d, %Y') }}</td><td>{{ order.total|peso }}</td><td><span class="status-pill status-{{ 'delivered' if order.payment.status == 'paid' else 'pending' }}">{{ 'Collected' if order.payment.status == 'paid' else 'Pending' }}</span>{% if order.payment.method == 'cod' and order.status == 'delivered' and order.payment.status != 'paid' %}<form class="payment-form" method="post" action="{{ url_for('admin.order_payment_status', order_id=order.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Mark collected</button></form>{% endif %}</td><td><form class="status-form" method="post" action="{{ url_for('admin.order_status', order_id=order.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><select name="status" aria-label="Status for {{ order.reference }}">{% for status in statuses %}<option value="{{ status }}" {% if order.status == status %}selected{% endif %}>{{ status|title }}</option>{% endfor %}</select><button type="submit">Save</button></form></td></tr>
+{% else %}<tr><td colspan="6">No transactions match this filter.</td></tr>{% endfor %}
+</tbody></table>
+{% if pagination.pages > 1 %}<div class="pagination-nav">{% if pagination.has_prev %}<a href="{{ url_for('admin.orders', q=search, status=selected_status, page=pagination.prev_num) }}">← Previous</a>{% endif %}<span>Page {{ pagination.page }} of {{ pagination.pages }}</span>{% if pagination.has_next %}<a href="{{ url_for('admin.orders', q=search, status=selected_status, page=pagination.next_num) }}">Next →</a>{% endif %}</div>{% endif %}</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}Categories | MARKS GADGETS{% endblock %}
+{% block content %}
+<section class="page-intro container-xl"><div><span class="eyebrow">BROWSE YOUR WAY</span><h1>Popular categories.</h1><p>Start with what you need. We’ll take it from there.</p></div></section><section class="container-xl category-page-grid">{% for category in categories %}<a class="category-tile category-page-tile" href="{{ url_for('main.products', category=category.slug) }}"><span class="category-number">0{{ loop.index }}</span><strong>{{ category.name }}</strong><span class="category-arrow">↗</span><small>{{ category.products|length }} products</small><p>{{ category.description }}</p></a>{% else %}<p class="empty-state">No categories yet.</p>{% endfor %}</section>
+{% endblock %}

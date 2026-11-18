@@ -1,0 +1,50 @@
+{% extends 'admin/base.html' %}
+{% block title %}Dashboard | MARK'S GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading">
+    <div><span class="eyebrow">STORE OVERVIEW</span><h1>Good day, {{ current_user.name.split(' ')[0] }}.</h1><p class="admin-subtitle">Here is what's happening with your store.</p></div>
+    <a class="button button-primary" href="{{ url_for('admin.product_new') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add product</a>
+</div>
+<section class="stat-grid" aria-label="Store statistics">
+    <article class="stat-card"><span><i class="bi bi-box-seam"></i> TOTAL PRODUCTS</span><strong>{{ product_count }}</strong><small>Catalog listings</small></article>
+    <article class="stat-card"><span><i class="bi bi-tags"></i> CATEGORIES</span><strong>{{ category_count }}</strong><small>Product groups</small></article>
+    <article class="stat-card"><span><i class="bi bi-people"></i> CUSTOMERS</span><strong>{{ customer_count }}</strong><small>Registered accounts</small></article>
+    <article class="stat-card"><span><i class="bi bi-receipt"></i> SALES TRANSACTIONS</span><strong>{{ order_count }}</strong><small>All-time orders</small></article>
+    <article class="stat-card stat-highlight"><span><i class="bi bi-currency-exchange"></i> TOTAL REVENUE</span><strong>{{ sales|peso }}</strong><small>Verified payments received</small></article>
+    <article class="stat-card"><span><i class="bi bi-exclamation-triangle"></i> LOW STOCK</span><strong>{{ low_stock_count }}</strong><small>Active products at 5 or fewer units</small></article>
+</section>
+<section class="admin-dashboard-grid">
+    <article class="admin-panel chart-panel">
+        <div class="panel-heading"><div><span class="eyebrow">REVENUE</span><h2>Sales overview</h2></div><span class="panel-note">Verified payments · last 6 months</span></div>
+        {% set max_sales = namespace(value=1) %}
+        {% for month in monthly_sales %}{% if month.amount > max_sales.value %}{% set max_sales.value = month.amount %}{% endif %}{% endfor %}
+        <div class="sales-chart" role="img" aria-label="Verified monthly revenue for the last six months">
+            {% for month in monthly_sales %}
+            <div class="sales-chart-column" title="{{ month.label }}: {{ month.amount|peso }}">
+                <strong>{{ month.amount|peso }}</strong>
+                <div class="sales-chart-track"><span style="height: {{ (month.amount / max_sales.value * 100)|round|int }}%"></span></div>
+                <small>{{ month.label }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+    <article class="admin-panel inventory-summary">
+        <div class="panel-heading"><div><span class="eyebrow">STOCK HEALTH</span><h2>Inventory summary</h2></div><a href="{{ url_for('admin.inventory') }}">Manage inventory <i class="bi bi-arrow-right"></i></a></div>
+        <div class="inventory-total"><strong>{{ stock_units }}</strong><span>units across {{ inventory_product_count }} active products</span></div>
+        <div class="inventory-meter" aria-hidden="true"><span style="width: {{ ((inventory_product_count - low_stock_count) / inventory_product_count * 100 if inventory_product_count else 0)|round|int }}%"></span></div>
+        <div class="inventory-key"><span><i class="inventory-dot inventory-dot-ok"></i> Healthy stock <strong>{{ inventory_product_count - low_stock_count }}</strong></span><span><i class="inventory-dot inventory-dot-low"></i> Low stock <strong>{{ low_stock_count }}</strong></span><span><i class="inventory-dot inventory-dot-out"></i> Out of stock <strong>{{ out_of_stock_count }}</strong></span></div>
+    </article>
+    <article class="admin-panel">
+        <div class="panel-heading"><div><span class="eyebrow">LATEST ACTIVITY</span><h2>Recent transactions</h2></div><a href="{{ url_for('admin.sales') }}">All transactions <i class="bi bi-arrow-right"></i></a></div>
+        {% if recent_orders %}<div class="admin-list">{% for order in recent_orders[:6] %}<div class="admin-list-row"><div><strong>{{ order.reference }}</strong><small>{{ order.customer_name }} · {{ order.created_at.strftime('%b %d, %Y') }}</small></div><span>{{ order.total|peso }}</span><span class="status-pill status-{{ order.status }}">{{ order.status|title }}</span></div>{% endfor %}</div>{% else %}<p class="muted-copy">No transactions recorded yet.</p>{% endif %}
+    </article>
+    <article class="admin-panel">
+        <div class="panel-heading"><div><span class="eyebrow">STORE ACTIVITY</span><h2>Recent activities</h2></div></div>
+        {% if recent_activities %}<div class="activity-list">{% for activity in recent_activities %}<div class="activity-row"><span class="activity-icon"><i class="bi {{ activity.icon }}" aria-hidden="true"></i></span><div><strong>{{ activity.description }}</strong><small>{{ activity.created_at.strftime('%b %d, %Y · %I:%M %p') }}</small></div></div>{% endfor %}</div>{% else %}<p class="muted-copy">Recent store events will appear here.</p>{% endif %}
+    </article>
+    <article class="admin-panel low-stock-panel">
+        <div class="panel-heading"><div><span class="eyebrow">RESTOCK WATCH</span><h2>Low stock products</h2></div><a href="{{ url_for('admin.inventory', stock='low') }}">View inventory <i class="bi bi-arrow-right"></i></a></div>
+        {% if low_stock %}<div class="admin-list">{% for product in low_stock %}<div class="admin-list-row"><div><strong>{{ product.name }}</strong><small>{{ product.category.name }}</small></div><span class="stock-warning">{{ product.stock }} left</span><a href="{{ url_for('admin.product_edit', product_id=product.id) }}">Edit</a></div>{% endfor %}</div>{% else %}<p class="muted-copy">All active products have healthy stock.</p>{% endif %}
+    </article>
+</section>
+{% endblock %}

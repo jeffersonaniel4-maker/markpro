@@ -1,0 +1,13 @@
+{% extends 'admin/base.html' %}
+{% block title %}Manage Categories | MARKS GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading"><div><span class="eyebrow">CATALOG</span><h1>Categories</h1><p class="admin-subtitle">Organize products into searchable groups.</p></div></div>
+<div class="category-admin-grid">
+    <form class="admin-panel admin-form" method="post"><span class="eyebrow">ADD CATEGORY</span><h2>New category</h2><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label for="name">Category name</label><input id="name" name="name" required maxlength="100"><label for="description">Description</label><textarea id="description" name="description" rows="4" maxlength="500"></textarea><button class="button button-primary" type="submit">Add category</button></form>
+    <section class="admin-panel">
+        <div class="panel-heading"><div><span class="eyebrow">STORE CATEGORIES</span><h2>Current categories</h2></div></div>
+        <form class="admin-search-form category-search" method="get" role="search"><label class="visually-hidden" for="category-search">Search categories</label><div class="search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="category-search" type="search" name="q" value="{{ search }}" maxlength="100" placeholder="Search categories..."></div><button class="button button-primary" type="submit">Search</button>{% if search %}<a class="button button-outline" href="{{ url_for('admin.categories') }}">Clear</a>{% endif %}</form>
+        <div class="admin-list">{% for category in categories %}<div class="admin-list-row"><div><strong>{{ category.name }}</strong><small>{{ category.products|length }} products</small></div><form method="post" action="{{ url_for('admin.category_delete', category_id=category.id) }}" data-confirm="Delete this category?"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="danger-link" type="submit">Delete</button></form></div>{% else %}<p class="muted-copy">No categories match your search.</p>{% endfor %}</div>
+    </section>
+</div>
+{% endblock %}

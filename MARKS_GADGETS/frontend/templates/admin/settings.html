@@ -1,0 +1,15 @@
+{% extends 'admin/base.html' %}
+{% block title %}Settings | MARK'S GADGETS{% endblock %}
+{% block admin_content %}
+<div class="admin-heading"><div><span class="eyebrow">SYSTEM MANAGEMENT</span><h1>Settings</h1><p class="admin-subtitle">Review your account and store configuration.</p></div></div>
+<div class="settings-grid">
+    <section class="admin-panel settings-card">
+        <span class="settings-icon"><i class="bi bi-person-gear" aria-hidden="true"></i></span>
+        <div><span class="eyebrow">ADMIN ACCOUNT</span><h2>{{ current_user.name }}</h2><p>{{ current_user.email }}</p><a class="button button-outline" href="{{ url_for('main.profile') }}">Manage my profile</a></div>
+    </section>
+    <section class="admin-panel settings-card">
+        <span class="settings-icon"><i class="bi bi-database-check" aria-hidden="true"></i></span>
+        <div><span class="eyebrow">STORE DATABASE</span><h2>Configured application database</h2><p>Dashboard and catalog information is loaded from this application's configured database. Missing optional tables are not created automatically.</p></div>
+    </section>
+</div>
+{% endblock %}

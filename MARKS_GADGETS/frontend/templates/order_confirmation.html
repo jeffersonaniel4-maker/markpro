@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}Order Confirmed | MARKS GADGETS{% endblock %}
+{% block content %}
+<section class="confirmation-wrap container-xl"><div class="confirmation-mark">✓</div><span class="eyebrow">ORDER RECEIVED</span><h1>Thanks, {{ order.customer_name }}.</h1><p>Your Cash on Delivery order is in our system. We’ll be in touch as it moves along.</p><div class="reference-box"><span>ORDER REFERENCE</span><strong>{{ order.reference }}</strong><a href="{{ url_for('main.order_detail', reference=order.reference) }}">View order details →</a></div><a class="button button-primary" href="{{ url_for('main.products') }}">Continue browsing</a></section>
+{% endblock %}
